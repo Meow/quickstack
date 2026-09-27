@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "quickstack",
+	"version": "${version}",
+	"name": "QuickStack",
+	"description": "Terraria style quick stack to and restock from nearby chests, with lockable inventory slots. Requires the QuickStack plugin on the server.",
+	"authors": [
+		"Nighty"
+	],
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.luna.quickstack.client.QuickStackClient"
+		],
+		"modmenu": [
+			"dev.luna.quickstack.client.compat.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"quickstack.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*",
+		"cloth-config": "*"
+	}
+}

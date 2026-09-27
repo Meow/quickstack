@@ -1,0 +1,124 @@
+# Builds the client mod and the server plugin on every push and pull request.
+#
+# On main, each part is released on its own: if the version of a part in
+# gradle.properties has no tag yet (client-v1.2.0, server-v1.2.0), that tag and a
+# release with the jar attached are created.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    outputs:
+      client: ${{ steps.versions.outputs.client }}
+      server: ${{ steps.versions.outputs.server }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Read versions
+        id: versions
+        run: |
+          for part in client server; do
+            version="$(sed -n "s/^${part}_version=//p" gradle.properties | tr -d '[:space:]')"
+            if [ -z "$version" ]; then
+              echo "::error::${part}_version is missing in gradle.properties"
+              exit 1
+            fi
+            echo "$part=$version" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Upload client jar
+        uses: actions/upload-artifact@v7
+        with:
+          name: client
+          if-no-files-found: error
+          path: client/build/libs/*.jar
+
+      - name: Upload server jar
+        uses: actions/upload-artifact@v7
+        with:
+          name: server
+          if-no-files-found: error
+          path: server/build/libs/*.jar
+
+  release:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - part: client
+            title: QuickStack Client
+            version: ${{ needs.build.outputs.client }}
+          - part: server
+            title: QuickStack Server
+            version: ${{ needs.build.outputs.server }}
+    concurrency:
+      group: release-${{ matrix.part }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ matrix.part }}-v${{ matrix.version }}
+      TITLE: ${{ matrix.title }} ${{ matrix.version }}
+    steps:
+      - name: Check for existing tag
+        id: tag
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          code=0
+          git ls-remote --exit-code --tags "$remote" "refs/tags/$TAG" > /dev/null || code=$?
+          case "$code" in
+            0)
+              echo "$TAG exists already, nothing to release."
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              ;;
+            2)
+              echo "$TAG does not exist yet, releasing."
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Could not look up $TAG (git exited with $code)"
+              exit 1
+              ;;
+          esac
+
+      - name: Download jar
+        if: steps.tag.outputs.exists == 'false'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ matrix.part }}
+          path: dist
+
+      - name: Publish release
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          gh release create "$TAG" dist/*.jar \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$TITLE" \
+            --generate-notes

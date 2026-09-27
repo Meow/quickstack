@@ -1,0 +1,44 @@
+plugins {
+	id 'java'
+}
+
+group = project.maven_group
+version = "${project.server_version}+mc${project.minecraft_version}"
+
+base {
+	archivesName = 'quickstack-server'
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		name = 'PaperMC'
+		url = 'https://repo.papermc.io/repository/maven-public/'
+	}
+}
+
+dependencies {
+	compileOnly "io.papermc.paper:paper-api:${project.paper_api_version}"
+}
+
+processResources {
+	def props = [
+		version          : project.version,
+		minecraft_version: project.minecraft_version
+	]
+	inputs.properties props
+
+	filesMatching('plugin.yml') {
+		expand props
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}

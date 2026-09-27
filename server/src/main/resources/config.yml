@@ -1,0 +1,42 @@
+# QuickStack server configuration. Apply changes with /quickstack reload.
+
+# Feature toggles. Players additionally need the quickstack.quickstack /
+# quickstack.restock permissions (granted to everyone by default).
+quick-stack: true
+restock: true
+
+# How quick stack decides that a container already holds an item.
+# true:  the same kind of item is enough, so a worn or differently enchanted
+#        diamond pickaxe goes into a chest that holds a diamond pickaxe.
+# false: the items have to be identical, including name, damage and enchantments.
+# Restocking always needs identical items, since it only tops up stacks.
+match-item-type: true
+
+# Distance in blocks around the player that is searched for containers (1-32).
+radius: 8
+
+# Upper bound of containers touched by a single request, nearest first.
+max-containers: 64
+
+# Minimum time between two requests of the same player, in milliseconds.
+cooldown-ms: 500
+
+# Which kinds of containers take part.
+containers:
+  # Chests, trapped chests and copper chests.
+  chests: true
+  barrels: true
+  shulker-boxes: true
+
+# Skip chests that could not be opened by hand (solid block or cat on top).
+skip-blocked-chests: true
+
+# Ask other plugins (WorldGuard, GriefPrevention, chest locks, ...) whether the
+# player may open a container by firing a right click event for it. Only fired
+# for containers that would actually exchange items with the player.
+check-protection: true
+
+# Feedback shown to the player that made the request.
+effects:
+  sound: true
+  particles: true

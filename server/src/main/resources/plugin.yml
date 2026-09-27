@@ -1,0 +1,23 @@
+name: QuickStack
+version: '${version}'
+main: dev.luna.quickstack.server.QuickStackPlugin
+api-version: '${minecraft_version}'
+description: Server side of the QuickStack mod - quick stack to and restock from nearby chests.
+author: Nighty
+
+commands:
+  quickstack:
+    description: QuickStack admin command.
+    usage: /<command> reload
+    permission: quickstack.reload
+
+permissions:
+  quickstack.quickstack:
+    description: Allows quick stacking items into nearby containers.
+    default: true
+  quickstack.restock:
+    description: Allows restocking items from nearby containers.
+    default: true
+  quickstack.reload:
+    description: Allows reloading the plugin configuration.
+    default: op
