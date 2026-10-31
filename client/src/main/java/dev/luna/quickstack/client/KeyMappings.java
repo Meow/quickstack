@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
 public final class KeyMappings {
@@ -37,10 +36,10 @@ public final class KeyMappings {
 	/** Key mappings do not track their state while a screen is open, so ask the keyboard directly. */
 	public static boolean isLockModifierDown() {
 		InputConstants.Key key = KeyMappingHelper.getBoundKeyOf(LOCK_MODIFIER);
-		if (key.getType() != InputConstants.Type.KEYSYM || key.equals(InputConstants.UNKNOWN)) {
+		if (key.getType() != InputConstants.Type.KEYBOARD || key.equals(InputConstants.UNKNOWN)) {
 			return false;
 		}
-		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), key.getValue());
+		return InputConstants.isKeyDown(key.getValue());
 	}
 
 	private static KeyMapping unbound(String name) {

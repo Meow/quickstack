@@ -1,6 +1,6 @@
 # QuickStack
 
-Terraria style inventory management for Minecraft 26.2:
+Terraria style inventory management for Minecraft 26.3:
 
 - **Quick stack to nearby chests** moves items from your inventory into nearby
   containers that already hold the same kind of item. Durability, enchantments and names
