@@ -1,5 +1,6 @@
 package dev.luna.quickstack.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
@@ -104,7 +105,7 @@ public final class InventoryControls {
 
 	/** Clicking an item while holding the lock key toggles its lock instead of picking it up. */
 	private static boolean allowMouseClick(Screen screen, MouseButtonEvent event) {
-		if (event.button() != 0 || !KeyMappings.isLockModifierDown()) {
+		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT || !KeyMappings.isLockModifierDown()) {
 			return true;
 		}
 
